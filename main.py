@@ -97,6 +97,7 @@ def make_yolov5_dataset(dataset_dir_path, img_paths, label_paths, patch):
                     shutil.copyfile(img_path, images_dir_path + '/' + img_name)
                     '''copy txt into labels folder'''
                     shutil.copyfile(label_path, labels_dir_path + '/' + img_name[:-3] + 'txt')
+                break
 
         print('View', view, 'done, ', len(img_paths[view]), 'img copied')
     return
@@ -119,9 +120,9 @@ def vis_debug(img_path, label_path):
 
 
 def main():
-    dataset_dir_path = './DataMatrixCoCoFormat/'
-    img_paths = get_img_dir_paths('./img')
-    label_paths = get_label_dir_paths('./label')
+    dataset_dir_path = './no/DataMatrixCoCoFormat/'
+    img_paths = get_img_dir_paths('./no/img')
+    label_paths = get_label_dir_paths('./no/label')
 
     print(list(img_paths.keys())[0], img_paths[list(img_paths.keys())[0]])
     print(list(label_paths.keys())[0], label_paths[list(label_paths.keys())[0]])
@@ -133,7 +134,7 @@ def main():
             if img_path['name'][:-3] in label_path:
                 vis_debug(img_path['path'], label_path)
 
-    # make_yolov5_dataset(dataset_dir_path, img_paths, label_paths, patch=True)
+    make_yolov5_dataset(dataset_dir_path, img_paths, label_paths, patch=True)
 
     vis_debug('./DataMatrixCoCoFormat/images/Image_20211125112706809_0_0.bmp',
               './DataMatrixCoCoFormat/labels/Image_20211125112706809_0_0.txt')

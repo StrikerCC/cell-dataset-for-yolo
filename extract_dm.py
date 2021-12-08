@@ -9,14 +9,14 @@ import cv2
 import os
 import shutil
 from main import get_img_dir_paths, get_label_dir_paths, vis_debug
-from utils import get_annotation
+import utils
 
 
 def main():
     stride = 20
-    dataset_dir_path = './DataMatrixPatch/'
-    img_paths = get_img_dir_paths('./img')
-    label_paths = get_label_dir_paths('./label')
+    dataset_dir_path = './no/DataMatrixPatch/'
+    img_paths = get_img_dir_paths('./no/img')
+    label_paths = get_label_dir_paths('./no/label')
 
     print(list(img_paths.keys())[0], img_paths[list(img_paths.keys())[0]])
     print(list(label_paths.keys())[0], label_paths[list(label_paths.keys())[0]])
@@ -26,7 +26,7 @@ def main():
         label_path = label_paths[view]
         for img_path in img_paths[view]:
             if img_path['name'][:-3] in label_path:
-                img, labels = get_annotation(img_path['path'], label_path)
+                img, labels = utils.get_annotation(img_path['path'], label_path)
 
     '''make patches'''
     '''clear old dataset dir and make new one'''
@@ -39,16 +39,11 @@ def main():
         label_path = label_paths[view]
         for img_path in img_paths[view]:
             if img_path['name'][:-3] in label_path:
-                img, labels = get_annotation(img_path['path'], label_path)
+                img, labels = utils.get_annotation(img_path['path'], label_path)
                 m, n = img.shape[:2]
                 for i_label, label in enumerate(labels):
                     cls, x_min, y_min, x_max, y_max = label
-
-                    x_min = max(0, x_min-stride)
-                    y_min = max(0, y_min-stride)
-                    x_max = min(n-1, x_max+stride)
-                    y_max = min(m-1, y_max+stride)
-
+                    x_min, y_min, x_max, y_max = utils.xyxy_expand(m, n, x_min, y_min, x_max, y_max)
                     dm_patch = img[y_min:y_max, x_min:x_max]
                     cv2.imwrite(dataset_dir_path+img_path['name'][:-3]+'_'+str(i_label)+'.jpg', dm_patch)
 

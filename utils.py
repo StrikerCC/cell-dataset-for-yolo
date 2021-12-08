@@ -40,6 +40,14 @@ def xyxy_2_xywhratio(m, n, x_min, y_min, x_max, y_max):
     return center_x_ratio, center_y_ratio, w_ratio, h_ratio
 
 
+def xyxy_expand(m, n, x_min, y_min, x_max, y_max, ratio):
+    center_x_ratio, center_y_ratio, w_ratio, h_ratio = xyxy_2_xywhratio(m, n, x_min, y_min, x_max, y_max)
+    w_ratio *= ratio
+    h_ratio *= ratio
+    x_min, y_min, x_max, y_max = xywhratio_2_xyxy(m, n, x_min, y_min, x_max, y_max)
+    return max(0, x_min), max(0, y_min), min(n-1, x_max), min(m-1, y_max)
+
+
 class ImgPatch:
     def __init__(self, img_size=(3000, 4096), patch_size=(1500, 2048), overlapping_size=(300, 300)):
         self.img_size = img_size
