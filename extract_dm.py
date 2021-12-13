@@ -13,10 +13,10 @@ import utils
 
 
 def main():
-    stride = 20
-    dataset_dir_path = './no/DataMatrixPatch/'
-    img_paths = get_img_dir_paths('./no/img')
-    label_paths = get_label_dir_paths('./no/label')
+    root_dir = './no/'
+    dataset_dir_path = root_dir + '/DataMatrixPatch/'
+    img_paths = get_img_dir_paths(root_dir + '/img')
+    label_paths = get_label_dir_paths(root_dir + '/label')
 
     print(list(img_paths.keys())[0], img_paths[list(img_paths.keys())[0]])
     print(list(label_paths.keys())[0], label_paths[list(label_paths.keys())[0]])
@@ -43,9 +43,10 @@ def main():
                 m, n = img.shape[:2]
                 for i_label, label in enumerate(labels):
                     cls, x_min, y_min, x_max, y_max = label
-                    x_min, y_min, x_max, y_max = utils.xyxy_expand(m, n, x_min, y_min, x_max, y_max)
+                    x_min, y_min, x_max, y_max = utils.xyxy_expand(m, n, x_min, y_min, x_max, y_max, 1.2)
                     dm_patch = img[y_min:y_max, x_min:x_max]
-                    cv2.imwrite(dataset_dir_path+img_path['name'][:-3]+'_'+str(i_label)+'.jpg', dm_patch)
+                    print(dataset_dir_path+img_path['name'][:-4]+'_'+str(i_label)+'.jpg')
+                    cv2.imwrite(dataset_dir_path+img_path['name'][:-4]+'_'+str(i_label)+'.jpg', dm_patch)
 
 
 if __name__ == '__main__':

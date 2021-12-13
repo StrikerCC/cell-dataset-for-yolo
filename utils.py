@@ -44,7 +44,7 @@ def xyxy_expand(m, n, x_min, y_min, x_max, y_max, ratio):
     center_x_ratio, center_y_ratio, w_ratio, h_ratio = xyxy_2_xywhratio(m, n, x_min, y_min, x_max, y_max)
     w_ratio *= ratio
     h_ratio *= ratio
-    x_min, y_min, x_max, y_max = xywhratio_2_xyxy(m, n, x_min, y_min, x_max, y_max)
+    x_min, y_min, x_max, y_max = xywhratio_2_xyxy(m, n, center_x_ratio, center_y_ratio, w_ratio, h_ratio)
     return max(0, x_min), max(0, y_min), min(n-1, x_max), min(m-1, y_max)
 
 
