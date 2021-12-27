@@ -54,7 +54,6 @@ def mv_accordingly(src_dir, index_dir, tgt_dir):
             shutil.move(src_dir + '/' + file_name, tgt_dir + '/' + file_name)
     return
 
-
 def main():
     root_dir = './DataMatrixCoCoFormat/'
     img_train_dir = root_dir + '/images/train/'
