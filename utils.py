@@ -11,6 +11,8 @@ import numpy as np
 import math
 import cv2
 
+import utils
+
 
 def get_annotation(img_path, label_path):
     annotations = []
@@ -55,7 +57,8 @@ class ImgPatch:
         self.o_x, self.o_y = int(overlapping_size[1]), int(overlapping_size[0])
         self.cell_width, self.cell_height = self.d_x + self.o_x, self.d_y + self.o_y
         self.top_left_corner_coord = self.compute_top_left_corners()
-        self.small_bbox_side_ignore = 1
+        # self.small_bbox_side_ignore = 1
+        self.min_ratio_to_keep_bbox = 0.3
 
     def compute_top_left_corners(self):
         len_y, len_x = self.img_size
@@ -100,21 +103,42 @@ class ImgPatch:
             for i, y_x_row in enumerate(self.top_left_corner_coord):
                 for j, (y, x) in enumerate(y_x_row):
                     x_min, y_min, x_max, y_max = bbox
+                    w, h = x_max - x_min, y_max - y_min
+
                     x_min_cell, y_min_cell, x_max_cell, y_max_cell = max(x, x_min), \
                                                                      max(y, y_min), \
                                                                      min(x + self.d_x + self.o_x - 1, x_max), \
                                                                      min(y + self.d_y + self.o_y - 1, y_max)
+                    w_cell, h_cell = x_max_cell - x_min_cell, y_max_cell - y_min_cell
                     # if enough part of bbox in this cell
-                    if x_min_cell + self.small_bbox_side_ignore < x_max_cell and y_min_cell + self.small_bbox_side_ignore < y_max_cell:
-                        bboxs_in_cell[i][j].append(
-                            [cls, x_min_cell - x, y_min_cell - y, x_max_cell - x, y_max_cell - y])
+                    if w_cell / w > self.min_ratio_to_keep_bbox and h_cell / h > self.min_ratio_to_keep_bbox:
+                        bboxs_in_cell[i][j].append([cls, x_min_cell - x, y_min_cell - y, x_max_cell - x, y_max_cell - y])
         return bboxs_in_cell
 
-    def img_and_label_from_img_2_cell(self, img, label):
+    def img_and_xyxy_label_from_img_2_cell(self, img, label):
         """"""
         img_cell = self.img_2_cell(img)
         bbox_in_cell = self.labels_from_img_coord_2_cell_coord(label)
         return img_cell, bbox_in_cell
+
+    def img_and_xywh_label_from_img_2_cell(self, img, labels):
+        """"""
+        imgs_cell = self.img_2_cell(img)
+        if not isinstance(labels[0], list): labels = [labels]
+        '''format annotation to xyxy'''
+        for i, label in enumerate(labels):
+            xyxy = utils.xywhratio_2_xyxy(*img.shape[:2], *label[1:])
+            labels[i] = [label[0], *xyxy]
+
+        labels_in_cell = self.labels_from_img_coord_2_cell_coord(labels)
+
+        '''format back to xywh'''
+        for i_patch, (img_col, label_row) in enumerate(zip(imgs_cell, labels_in_cell)):
+            for j_patch, (img_cell, labels_in_one_cell) in enumerate(zip(img_col, label_row)):
+                for i_label, label in enumerate(labels_in_one_cell):
+                    xywh = utils.xyxy_2_xywhratio(*img_cell.shape[:2], *label[1:])
+                    labels_in_cell[i_patch][j_patch][i_label] = [label[0], *xywh]
+        return imgs_cell, labels_in_cell
 
     def example_cells(self):
         img = np.arange(0, self.img_size[0] * self.img_size[1])
@@ -122,7 +146,6 @@ class ImgPatch:
         img = np.concatenate([img, img, img], axis=-1)
         img_cells = self.img_2_cell(img)
         return img_cells
-
 
 
 def sudo_img_test_patcher():
