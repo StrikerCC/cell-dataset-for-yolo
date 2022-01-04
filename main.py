@@ -10,6 +10,7 @@ import shutil
 import cv2
 import numpy as np
 import utils
+from image_patcher import ImgPatch
 
 
 def get_img_dir_paths(root_dir_path):
@@ -42,7 +43,7 @@ def make_yolov5_dataset(dataset_dir_path, img_paths, label_paths, patch):
     images_dir_path = dataset_dir_path + '/images/'
     labels_dir_path = dataset_dir_path + '/labels/'
 
-    patcher = utils.ImgPatch()
+    patcher = ImgPatch()
     print(patcher.top_left_corner_coord)
     '''clear old dataset dir and make new one'''
     if os.path.isdir(dataset_dir_path):
